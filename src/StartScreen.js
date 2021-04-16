@@ -6,60 +6,71 @@ export default class StartScreen extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('space', '../src/assets/space.png');
-    this.load.image('logo', '../src/assets/logo.png');
-    this.load.image('star', '../src/assets/star.png');
-    this.load.image('asteroid1', '../src/assets/asteroid-1.png');
+    this.load.audio('dead', '../src/assets/audio/cuando_mueres.mp3');
+    this.load.audio('laser', '../src/assets/audio/disparo1.mp3');
+    this.load.audio('blast', '../src/assets/audio/bola_distor.mp3');
+    this.load.audio('tri-blast', '../src/assets/audio/disparo3.mp3');
+    this.load.audio('shield_grab', '../src/assets/audio/shield.mp3');
+    this.load.audio('awebo', '../src/assets/audio/awebo.mp3');
+    this.load.audio('powerup1', '../src/assets/audio/power_up_bola.mp3');
+    this.load.image('space', '../src/assets/images/space.png');
+    this.load.image('logo', '../src/assets/images/logo.png');
+    this.load.image('star', '../src/assets/images/star.png');
+    this.load.image('asteroid1', '../src/assets/images/asteroid-1.png');
     // this.load.image('asteroid2', '../src/assets/asteroid-2.png');
     // this.load.image('asteroid3', '../src/assets/asteroid-3.png');
     // this.load.image('asteroid4', '../src/assets/asteroid-4.png');
 
-    this.load.spritesheet('skull', '../src/assets/skull4.png', {
+    this.load.spritesheet('skull', '../src/assets/images/skull4.png', {
       frameWidth: 46,
       frameHeight: 56,
     });
 
-    this.load.spritesheet('logo-skull', '../src/assets/logo-skull.png', {
+    this.load.spritesheet('logo-skull', '../src/assets/images/logo-skull.png', {
       frameWidth: 176,
       frameHeight: 224,
     });
-    this.load.spritesheet('explosion1', '../src/assets/explosion1.png', {
+    this.load.spritesheet('explosion1', '../src/assets/images/explosion1.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('explosion2', '../src/assets/explosion2.png', {
+    this.load.spritesheet('explosion2', '../src/assets/images/explosion2.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('explosion3', '../src/assets/explosion4.png', {
+    this.load.spritesheet('explosion3', '../src/assets/images/explosion4.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('laser', '../src/assets/laser2.png', {
+    this.load.spritesheet('laser', '../src/assets/images/laser2.png', {
       frameWidth: 40,
       frameHeight: 4,
     });
-    this.load.spritesheet('blast', '../src/assets/upgradedBullet.png', {
+    this.load.spritesheet('blast', '../src/assets/images/upgradedBullet.png', {
       frameWidth: 16,
       frameHeight: 16,
     });
-    this.load.spritesheet('powerup1', '../src/assets/powerup1.png', {
+    this.load.spritesheet('powerup1', '../src/assets/images/powerup1.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('powerup2', '../src/assets/powerup2.png', {
+    this.load.spritesheet('powerup2', '../src/assets/images/powerup2.png', {
       frameWidth: 38,
       frameHeight: 38,
     });
-    this.load.spritesheet('shield', '../src/assets/shield.png', {
+    this.load.spritesheet('shield', '../src/assets/images/shield.png', {
       frameWidth: 32,
       frameHeight: 32,
     });
-    this.load.spritesheet('shield-sprite', '../src/assets/shield-sprite.png', {
-      frameWidth: 74,
-      frameHeight: 74,
-    });
-    this.load.spritesheet('angel', '../src/assets/angel.png', {
+    this.load.spritesheet(
+      'shield-sprite',
+      '../src/assets/images/shield-sprite.png',
+      {
+        frameWidth: 74,
+        frameHeight: 74,
+      }
+    );
+    this.load.spritesheet('angel', '../src/assets/images/angel.png', {
       frameWidth: 56,
       frameHeight: 58,
     });
@@ -91,6 +102,16 @@ export default class StartScreen extends Phaser.Scene {
       key: 'skull_logo_anim',
       frames: this.anims.generateFrameNumbers('logo-skull', {
         start: 0,
+        end: 14,
+      }),
+      frameRate: 6,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'skull_start_anim',
+      frames: this.anims.generateFrameNumbers('logo-skull', {
+        start: 21,
         end: 24,
       }),
       frameRate: 6,
@@ -168,12 +189,25 @@ export default class StartScreen extends Phaser.Scene {
     });
     this.background = this.add.image(0, 0, 'logo');
     this.background.setOrigin(0, 0);
-    this.skullLogo = this.add.sprite(400, 350, 'logo-skull');
-    this.skullLogo.setScale(0.5);
-    this.skullLogo.play('skull_logo_anim');
+    const skullLogo = this.add.sprite(400, 350, 'logo-skull');
+    skullLogo.setScale(0.75);
+    skullLogo.play('skull_start_anim');
+    this.add.text(120, 480, 'press ENTER to play', {
+      fontSize: '30px',
+      fontFamily: "'Press Start 2P', 'cursive'",
+    });
+    const time = this.time;
     const scene = this.scene;
-    this.input.keyboard.on('keydown-SPACE', function () {
-      scene.start('playGame');
+    this.input.keyboard.on('keydown-ENTER', function () {
+      // skullLogo.play('skull_start_anim');
+      time.addEvent({
+        delay: 1000,
+        callback: () => {
+          scene.start('playGame');
+        },
+        callbackScope: this,
+        loop: false,
+      });
     });
   }
 }

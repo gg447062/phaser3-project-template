@@ -3,6 +3,7 @@ import StartScreen from './StartScreen';
 import FirstLevel from './FirstLevel';
 import GameOver from './GameOver';
 import BossLevel from './BossLevel';
+import YouWon from './YouWon';
 
 const config = {
   type: Phaser.AUTO,
@@ -10,7 +11,7 @@ const config = {
   width: 800,
   height: 600,
   backgroundColor: 0x000000,
-  scene: [StartScreen, FirstLevel, BossLevel, GameOver],
+  scene: [StartScreen, FirstLevel, BossLevel, GameOver, YouWon],
   physics: {
     default: 'arcade',
     arcade: {

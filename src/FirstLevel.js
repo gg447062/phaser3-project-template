@@ -8,8 +8,11 @@ export default class FirstLevel extends Phaser.Scene {
 
   init() {
     this.score = 0;
+    this.shotsFired = 0;
+    this.enemiesHit = 0;
     this.playerSpeed = 300;
     this.weaponType = 'laser';
+    this.soundIndex = 0;
     this.shieldActive = false;
     this.shieldHits = 0;
     this.asteroidSpeed = 200;
@@ -22,6 +25,15 @@ export default class FirstLevel extends Phaser.Scene {
   create() {
     this.background = this.add.tileSprite(0, 0, 800, 600, 'space');
     this.background.setOrigin(0, 0);
+
+    this.laser = this.sound.add('laser');
+    this.blast = this.sound.add('blast');
+    this.triBlast = this.sound.add('tri-blast');
+    this.soundArray = [this.laser, this.blast, this.triBlast];
+
+    this.shield_grab = this.sound.add('shield_grab');
+    this.powerup1_grab = this.sound.add('powerup1');
+    this.powerup3_grab = this.sound.add('awebo');
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.spacebar = this.input.keyboard.addKey(
@@ -78,13 +90,7 @@ export default class FirstLevel extends Phaser.Scene {
       null,
       this
     );
-    this.physics.add.collider(
-      this.shield,
-      this.asteroids,
-      this.hitShield,
-      null,
-      this
-    );
+
     this.physics.add.collider(
       this.shield,
       this.enemies,
@@ -134,19 +140,24 @@ export default class FirstLevel extends Phaser.Scene {
 
   update() {
     if (this.isDead) {
+      const accuracy = ((this.enemiesHit / this.shotsFired) * 100).toFixed(2);
       this.time.addEvent({
         delay: 1000,
         callback: () => {
-          this.scene.start('game-over');
+          this.scene.start('game-over', { accuracy });
         },
         callbackScope: this,
         loop: false,
       });
-    } else if (this.score > 50) {
+    } else if (this.score > 300) {
       this.time.addEvent({
         delay: 1000,
         callback: () => {
-          this.scene.start('boss-level');
+          this.scene.start('boss-level', {
+            score: this.score,
+            shotsFired: this.shotsFired,
+            enemiesHit: this.enemiesHit,
+          });
         },
         callbackScope: this,
         loop: false,
@@ -196,6 +207,7 @@ export default class FirstLevel extends Phaser.Scene {
     if (this.skull.active) {
       if (this.weaponType === 'tri-blast') {
         this.skull.play('skull_fire_anim');
+        this.soundArray[this.soundIndex].play();
         let initAngle = -100;
         for (let i = 0; i < 3; i++) {
           const bullet = this.physics.add.sprite(
@@ -208,6 +220,7 @@ export default class FirstLevel extends Phaser.Scene {
           bullet.setVelocityY(initAngle);
           this.projectiles.add(bullet);
           initAngle += 100;
+          this.shotsFired++;
         }
       } else {
         const bullet = this.physics.add.sprite(
@@ -217,8 +230,10 @@ export default class FirstLevel extends Phaser.Scene {
         );
         this.skull.play('skull_fire_anim');
         bullet.play(`${this.weaponType}_anim`);
+        this.soundArray[this.soundIndex].play();
         bullet.setVelocityX(400);
         this.projectiles.add(bullet);
+        this.shotsFired++;
       }
     }
   }
@@ -284,6 +299,7 @@ export default class FirstLevel extends Phaser.Scene {
     explosion.setScale(1.25);
     laser.destroy();
     asteroid.destroy();
+    this.enemiesHit++;
     this.scoreLabel.add(5);
     this.score += 5;
     this.checkScore();
@@ -298,6 +314,7 @@ export default class FirstLevel extends Phaser.Scene {
     explosion.play('explode3');
     laser.destroy();
     enemy.destroy();
+    this.enemiesHit++;
     this.scoreLabel.add(10);
     this.score += 10;
     this.checkScore();
@@ -328,7 +345,8 @@ export default class FirstLevel extends Phaser.Scene {
   }
 
   createScoreLabel(x, y, score) {
-    const label = new ScoreLabel(this, x, y, score);
+    const style = { fontFamily: "'Press Start 2P', 'cursive'" };
+    const label = new ScoreLabel(this, x, y, score, style);
 
     this.add.existing(label);
     return label;
@@ -354,13 +372,18 @@ export default class FirstLevel extends Phaser.Scene {
   addPowerup(powerup, skull) {
     powerup.destroy();
     if (powerup.name === 'powerup1') {
+      this.powerup1_grab.play();
       this.weaponType = 'blast';
+      this.soundIndex++;
     } else if (powerup.name === 'powerup2') {
+      this.powerup3_grab.play();
       this.weaponType = 'tri-blast';
+      this.soundIndex++;
     } else if (powerup.name === 'shield') {
       if (!this.shieldActive) {
         this.shieldActive = true;
         this.shield.enableBody(true, skull.x, skull.y, true, true);
+        this.shield_grab.play();
       } else {
         this.shieldHits = 0;
       }
