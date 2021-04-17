@@ -18,12 +18,28 @@ export default class BossLevel extends Phaser.Scene {
     this.isDead = false;
     this.bossHealth = 200;
     this.fireRate = 1000;
+    this.won = false;
   }
 
   create() {
+    this.music = this.sound.add('bossBattle');
+    const musicConfig = {
+      mute: false,
+      volume: 1,
+      rate: 1,
+      detune: 0,
+      seek: 0,
+      loop: true,
+      delay: 0,
+    };
+    this.music.play(musicConfig);
+    this.cameras.main.fadeIn(1000, 0, 0, 0);
     this.background = this.add.tileSprite(0, 0, 800, 600, 'space');
     this.background.setOrigin(0, 0);
     this.triBlast = this.sound.add('tri-blast');
+    this.die = this.sound.add('exp_kalaka');
+    this.bossDie = this.sound.add('dios_se_muere');
+    this.shield_grab = this.sound.add('shield_grab');
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.spacebar = this.input.keyboard.addKey(
@@ -36,6 +52,9 @@ export default class BossLevel extends Phaser.Scene {
     });
 
     this.boss = this.createBoss();
+    this.boss.on('animationcomplete', () => {
+      this.boss.play('boss_anim');
+    });
 
     this.projectiles = this.add.group();
 
@@ -103,6 +122,7 @@ export default class BossLevel extends Phaser.Scene {
       this.time.addEvent({
         delay: 1000,
         callback: () => {
+          this.music.stop();
           this.scene.start('game-over', { accuracy });
         },
         callbackScope: this,
@@ -110,16 +130,11 @@ export default class BossLevel extends Phaser.Scene {
       });
     } else if (this.bossHealth <= 0) {
       this.physics.pause;
-      const explosion = this.physics.add.sprite(
-        this.boss.x - 10,
-        this.boss.y,
-        'explosion3'
-      );
-      explosion.play('explode3');
-      this.boss.destroy();
       this.time.addEvent({
-        delay: 2000,
+        delay: 8000,
         callback: () => {
+          this.bossDie.stop();
+          this.music.stop();
           this.scene.start('you-won', { accuracy });
         },
         callbackScope: this,
@@ -147,9 +162,10 @@ export default class BossLevel extends Phaser.Scene {
   }
 
   createBoss() {
-    const boss = this.physics.add.sprite(750, 300, 'angel');
-    boss.play('angel_anim');
+    const boss = this.physics.add.sprite(750, 300, 'boss');
+    boss.play('boss_anim');
     boss.setCollideWorldBounds(true);
+    boss.setImmovable(true);
     boss.setVelocityY(200);
     boss.setBounceY(1);
     return boss;
@@ -193,6 +209,7 @@ export default class BossLevel extends Phaser.Scene {
 
   destroyPlayer(skull, enemy) {
     if (!this.isDead) {
+      this.die.play();
       const explosion = this.physics.add.sprite(skull.x, skull.y, 'explosion1');
       explosion.play('explode');
       explosion.setScale(2);
@@ -234,7 +251,7 @@ export default class BossLevel extends Phaser.Scene {
 
   addPowerup(powerup, skull) {
     powerup.destroy();
-    if (powerup.name === 'plus10') {
+    if (powerup.name === 'powerup2') {
       this.playerAttack += 10;
       this.time.addEvent({
         delay: 5000,
@@ -245,6 +262,7 @@ export default class BossLevel extends Phaser.Scene {
         loop: false,
       });
     } else if (powerup.name === 'shield') {
+      this.shield_grab.play();
       if (!this.shieldActive) {
         this.shieldActive = true;
         this.shield.enableBody(true, skull.x, skull.y, true, true);
@@ -280,24 +298,38 @@ export default class BossLevel extends Phaser.Scene {
   }
 
   hitBoss(bullet) {
-    console.log(this.bossHealth);
+    this.boss.play('boss_hit_anim');
     bullet.destroy();
     this.bossHealth -= this.playerAttack;
-    this.healthLabel.subtract(10);
+    this.healthLabel.subtract(this.playerAttack);
     this.checkHealth();
+
+    if (this.bossHealth <= 0) {
+      const explosion = this.physics.add.sprite(
+        this.boss.x - 10,
+        this.boss.y,
+        'explosion3'
+      );
+      explosion.play('explode4');
+      this.bossDie.play();
+      this.boss.destroy();
+    }
   }
 
   bossFire() {
-    const star = this.physics.add.sprite(this.boss.x, this.boss.y, 'star');
-    star.setVelocityX(-400);
-    this.enemyProjectiles.add(star);
+    if (this.boss.active) {
+      const rayo = this.physics.add.sprite(this.boss.x, this.boss.y, 'rayo');
+      rayo.setVelocityX(-400);
+      rayo.play('rayo_anim');
+      this.enemyProjectiles.add(rayo);
+    }
   }
 
   checkHealth() {
     if (!(this.bossHealth % 75)) {
       this.releasePowerup('shield');
     } else if (this.bossHealth === 100) {
-      this.releasePowerup('plus10');
+      this.releasePowerup('powerup2');
     }
   }
 

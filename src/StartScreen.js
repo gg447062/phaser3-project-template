@@ -7,12 +7,25 @@ export default class StartScreen extends Phaser.Scene {
 
   preload() {
     this.load.audio('dead', '../src/assets/audio/cuando_mueres.mp3');
+    this.load.audio('intro', '../src/assets/audio/intro.mp3');
+    this.load.audio('bossBattle', '../src/assets/Lucha_con_dios.mp3');
+    this.load.audio('overworld', '../src/assets/audio/overworld.mp3');
+
     this.load.audio('laser', '../src/assets/audio/disparo1.mp3');
     this.load.audio('blast', '../src/assets/audio/bola_distor.mp3');
     this.load.audio('tri-blast', '../src/assets/audio/disparo3.mp3');
     this.load.audio('shield_grab', '../src/assets/audio/shield.mp3');
     this.load.audio('awebo', '../src/assets/audio/awebo.mp3');
     this.load.audio('powerup1', '../src/assets/audio/power_up_bola.mp3');
+    this.load.audio('angel_die', '../src/assets/audio/angel_muere.mp3');
+    this.load.audio('exp_kalaka', '../src/assets/audio/exp_kalaka.mp3');
+    this.load.audio('dios_entra', '../src/assets/audio/dios_entra.mp3');
+    this.load.audio(
+      'dios_se_muere',
+      '../src/assets/audio/diosito_se_muere.mp3'
+    );
+    this.load.audio('aleluya', '../src/assets/audio/aleluya_2.mp3');
+    this.load.audio('asteroid', '../src/assets/audio/asteroide_real.mp3');
     this.load.image('space', '../src/assets/images/space.png');
     this.load.image('logo', '../src/assets/images/logo.png');
     this.load.image('star', '../src/assets/images/star.png');
@@ -74,9 +87,40 @@ export default class StartScreen extends Phaser.Scene {
       frameWidth: 56,
       frameHeight: 58,
     });
+
+    this.load.spritesheet('boss', '../src/assets/images/diosito.png', {
+      frameWidth: 88,
+      frameHeight: 140,
+    });
+
+    this.load.spritesheet(
+      'boss_hit',
+      '../src/assets/images/diosito_pegado.png',
+      {
+        frameWidth: 88,
+        frameHeight: 140,
+      }
+    );
+
+    this.load.spritesheet('rayo', '../src/assets/images/lightning.png', {
+      frameWidth: 64,
+      frameHeight: 17,
+    });
   }
 
   create() {
+    const music = this.sound.add('intro');
+    const musicConfig = {
+      mute: false,
+      volume: 1,
+      rate: 1,
+      detune: 0,
+      seek: 0,
+      loop: true,
+      delay: 0,
+    };
+    music.play(musicConfig);
+
     this.anims.create({
       key: 'skull_anim',
       frames: [{ key: 'skull', frame: 2 }],
@@ -143,6 +187,14 @@ export default class StartScreen extends Phaser.Scene {
     });
 
     this.anims.create({
+      key: 'explode4',
+      frames: this.anims.generateFrameNumbers('explosion3'),
+      frameRate: 20,
+      repeat: 10,
+      hideOnComplete: true,
+    });
+
+    this.anims.create({
       key: 'laser_anim',
       frames: this.anims.generateFrameNumbers('laser'),
       frameRate: 25,
@@ -187,6 +239,28 @@ export default class StartScreen extends Phaser.Scene {
       frameRate: 7,
       repeat: -1,
     });
+
+    this.anims.create({
+      key: 'boss_anim',
+      frames: this.anims.generateFrameNumbers('boss'),
+      frameRate: 12,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'boss_hit_anim',
+      frames: this.anims.generateFrameNumbers('boss_hit'),
+      frameRate: 12,
+      repeat: 0,
+    });
+
+    this.anims.create({
+      key: 'rayo_anim',
+      frames: this.anims.generateFrameNumbers('rayo'),
+      frameRate: 12,
+      repeat: -1,
+    });
+
     this.background = this.add.image(0, 0, 'logo');
     this.background.setOrigin(0, 0);
     const skullLogo = this.add.sprite(400, 350, 'logo-skull');
@@ -203,6 +277,7 @@ export default class StartScreen extends Phaser.Scene {
       time.addEvent({
         delay: 1000,
         callback: () => {
+          music.stop();
           scene.start('playGame');
         },
         callbackScope: this,

@@ -20,9 +20,22 @@ export default class FirstLevel extends Phaser.Scene {
     this.isDead = false;
     this.spawnNumber = 2;
     this.fireRate = 1000;
+    this.nextLevel = false;
   }
 
   create() {
+    this.music = this.sound.add('overworld');
+    const musicConfig = {
+      mute: false,
+      volume: 1,
+      rate: 1,
+      detune: 0,
+      seek: 0,
+      loop: true,
+      delay: 0,
+    };
+    this.music.play(musicConfig);
+    this.cameras.main.fadeIn(2000, 0, 0, 0);
     this.background = this.add.tileSprite(0, 0, 800, 600, 'space');
     this.background.setOrigin(0, 0);
 
@@ -34,6 +47,10 @@ export default class FirstLevel extends Phaser.Scene {
     this.shield_grab = this.sound.add('shield_grab');
     this.powerup1_grab = this.sound.add('powerup1');
     this.powerup3_grab = this.sound.add('awebo');
+    this.die = this.sound.add('exp_kalaka');
+    this.angelDie = this.sound.add('angel_die');
+    this.aleluya = this.sound.add('aleluya');
+    this.asteroidDestroy = this.sound.add('asteroid');
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.spacebar = this.input.keyboard.addKey(
@@ -144,15 +161,26 @@ export default class FirstLevel extends Phaser.Scene {
       this.time.addEvent({
         delay: 1000,
         callback: () => {
+          this.music.stop();
           this.scene.start('game-over', { accuracy });
         },
         callbackScope: this,
         loop: false,
       });
-    } else if (this.score > 300) {
+    } else if (this.score >= 150) {
+      this.nextLevel = true;
+      // this.cameras.main.fadeOut(2000, 0, 0, 0);
+      // this.cameras.main.once(
+      //   Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      //   (cam, effect) => {
+      //     this.scene.start('boss-level');
+      //   }
+      // );
       this.time.addEvent({
         delay: 1000,
         callback: () => {
+          this.music.stop;
+          this.aleluya.play();
           this.scene.start('boss-level', {
             score: this.score,
             shotsFired: this.shotsFired,
@@ -239,21 +267,23 @@ export default class FirstLevel extends Phaser.Scene {
   }
 
   launchAsteroids() {
-    for (let i = 0; i < this.spawnNumber; i++) {
-      const randomScale = Phaser.Math.Between(1.5, 2);
-      const randomStep = Phaser.Math.Between(-250, 250);
-      const randomSpeed = Phaser.Math.Between(-50, 50);
-      const initY = 300;
-      const asteroid = this.physics.add.sprite(
-        800,
-        initY + randomStep,
-        'asteroid1'
-      );
+    if (!this.nextLevel) {
+      for (let i = 0; i < this.spawnNumber; i++) {
+        const randomScale = Phaser.Math.Between(1.5, 2);
+        const randomStep = Phaser.Math.Between(-250, 250);
+        const randomSpeed = Phaser.Math.Between(-50, 50);
+        const initY = 300;
+        const asteroid = this.physics.add.sprite(
+          800,
+          initY + randomStep,
+          'asteroid1'
+        );
 
-      asteroid.setScale(randomScale);
-      asteroid.setVelocityX(-this.asteroidSpeed + randomSpeed);
-      asteroid.body.immovable = true;
-      this.asteroids.add(asteroid);
+        asteroid.setScale(randomScale);
+        asteroid.setVelocityX(-this.asteroidSpeed + randomSpeed);
+        asteroid.body.immovable = true;
+        this.asteroids.add(asteroid);
+      }
     }
   }
 
@@ -277,6 +307,7 @@ export default class FirstLevel extends Phaser.Scene {
 
   destroyPlayer(skull, enemy) {
     if (!this.isDead) {
+      this.die.play();
       const explosion = this.physics.add.sprite(skull.x, skull.y, 'explosion1');
       explosion.play('explode');
       explosion.setScale(2);
@@ -295,6 +326,7 @@ export default class FirstLevel extends Phaser.Scene {
       asteroid.y,
       'explosion2'
     );
+    this.asteroidDestroy.play();
     explosion.play('explode2');
     explosion.setScale(1.25);
     laser.destroy();
@@ -312,6 +344,7 @@ export default class FirstLevel extends Phaser.Scene {
       'explosion3'
     );
     explosion.play('explode3');
+    this.angelDie.play();
     laser.destroy();
     enemy.destroy();
     this.enemiesHit++;
@@ -411,11 +444,13 @@ export default class FirstLevel extends Phaser.Scene {
   }
 
   angelFire() {
-    this.enemies.getChildren().forEach((angel) => {
-      const star = this.physics.add.sprite(angel.x, angel.y, 'star');
-      star.setVelocityX(-400);
-      this.enemyProjectiles.add(star);
-    });
+    if (!this.nextLevel) {
+      this.enemies.getChildren().forEach((angel) => {
+        const star = this.physics.add.sprite(angel.x, angel.y, 'star');
+        star.setVelocityX(-400);
+        this.enemyProjectiles.add(star);
+      });
+    }
   }
 
   createShield() {

@@ -24,10 +24,10 @@ export default class GameOver extends Phaser.Scene {
     if (isNaN(this.accuracy)) {
       this.accuracy = 0;
     }
-    this.add.text(220, 230, `accuracy: ${this.accuracy}%`, {
-      fontSize: '30px',
-      fontFamily: "'Press Start 2P', 'cursive'",
-    });
+    // this.add.text(220, 230, `accuracy: ${this.accuracy}%`, {
+    //   fontSize: '30px',
+    //   fontFamily: "'Press Start 2P', 'cursive'",
+    // });
     this.add.text(220, 180, 'you died :(', {
       fontSize: '30px',
       fontFamily: "'Press Start 2P', 'cursive'",
