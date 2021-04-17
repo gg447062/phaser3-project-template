@@ -8,9 +8,9 @@ export default class StartScreen extends Phaser.Scene {
   preload() {
     this.load.audio('dead', '../src/assets/audio/cuando_mueres.mp3');
     this.load.audio('intro', '../src/assets/audio/intro.mp3');
-    this.load.audio('bossBattle', '../src/assets/Lucha_con_dios.mp3');
+    this.load.audio('bossBattle', '../src/assets/audio/Lucha_con_dios.mp3');
     this.load.audio('overworld', '../src/assets/audio/overworld.mp3');
-
+    this.load.audio('ending', '../src/assets/audio/ending.mp3');
     this.load.audio('laser', '../src/assets/audio/disparo1.mp3');
     this.load.audio('blast', '../src/assets/audio/bola_distor.mp3');
     this.load.audio('tri-blast', '../src/assets/audio/disparo3.mp3');
@@ -30,9 +30,6 @@ export default class StartScreen extends Phaser.Scene {
     this.load.image('logo', '../src/assets/images/logo.png');
     this.load.image('star', '../src/assets/images/star.png');
     this.load.image('asteroid1', '../src/assets/images/asteroid-1.png');
-    // this.load.image('asteroid2', '../src/assets/asteroid-2.png');
-    // this.load.image('asteroid3', '../src/assets/asteroid-3.png');
-    // this.load.image('asteroid4', '../src/assets/asteroid-4.png');
 
     this.load.spritesheet('skull', '../src/assets/images/skull4.png', {
       frameWidth: 46,
@@ -120,6 +117,8 @@ export default class StartScreen extends Phaser.Scene {
       delay: 0,
     };
     music.play(musicConfig);
+    const cameras = this.cameras;
+    cameras.main.fadeIn(2000, 0, 0, 0);
 
     this.anims.create({
       key: 'skull_anim',
@@ -270,19 +269,26 @@ export default class StartScreen extends Phaser.Scene {
       fontSize: '30px',
       fontFamily: "'Press Start 2P', 'cursive'",
     });
-    const time = this.time;
+    // const time = this.time;
     const scene = this.scene;
     this.input.keyboard.on('keydown-ENTER', function () {
-      // skullLogo.play('skull_start_anim');
-      time.addEvent({
-        delay: 1000,
-        callback: () => {
+      cameras.main.fadeOut(2000, 0, 0, 0);
+      cameras.main.once(
+        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+        (cam, effect) => {
           music.stop();
           scene.start('playGame');
-        },
-        callbackScope: this,
-        loop: false,
-      });
+        }
+      );
+      // time.addEvent({
+      //   delay: 1000,
+      //   callback: () => {
+      //     music.stop();
+      //     scene.start('playGame');
+      //   },
+      //   callbackScope: this,
+      //   loop: false,
+      // });
     });
   }
 }

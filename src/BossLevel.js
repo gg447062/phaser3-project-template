@@ -16,8 +16,8 @@ export default class BossLevel extends Phaser.Scene {
     this.shieldActive = false;
     this.shieldHits = 0;
     this.isDead = false;
-    this.bossHealth = 200;
-    this.fireRate = 1000;
+    this.bossHealth = 300;
+    this.fireRate = 800;
     this.won = false;
   }
 
@@ -128,11 +128,11 @@ export default class BossLevel extends Phaser.Scene {
         callbackScope: this,
         loop: false,
       });
-    } else if (this.bossHealth <= 0) {
-      this.physics.pause;
+    } else if (this.won) {
       this.time.addEvent({
-        delay: 8000,
+        delay: 10000,
         callback: () => {
+          this.physics.pause;
           this.bossDie.stop();
           this.music.stop();
           this.scene.start('you-won', { accuracy });
@@ -298,12 +298,6 @@ export default class BossLevel extends Phaser.Scene {
   }
 
   hitBoss(bullet) {
-    this.boss.play('boss_hit_anim');
-    bullet.destroy();
-    this.bossHealth -= this.playerAttack;
-    this.healthLabel.subtract(this.playerAttack);
-    this.checkHealth();
-
     if (this.bossHealth <= 0) {
       const explosion = this.physics.add.sprite(
         this.boss.x - 10,
@@ -313,6 +307,13 @@ export default class BossLevel extends Phaser.Scene {
       explosion.play('explode4');
       this.bossDie.play();
       this.boss.destroy();
+      this.won = true;
+    } else {
+      this.boss.play('boss_hit_anim');
+      bullet.destroy();
+      this.bossHealth -= this.playerAttack;
+      this.healthLabel.subtract(this.playerAttack);
+      this.checkHealth();
     }
   }
 

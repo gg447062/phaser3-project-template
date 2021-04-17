@@ -35,9 +35,11 @@ export default class FirstLevel extends Phaser.Scene {
       delay: 0,
     };
     this.music.play(musicConfig);
-    this.cameras.main.fadeIn(2000, 0, 0, 0);
+
     this.background = this.add.tileSprite(0, 0, 800, 600, 'space');
     this.background.setOrigin(0, 0);
+
+    this.cameras.main.fadeIn(2000, 0, 0, 0);
 
     this.laser = this.sound.add('laser');
     this.blast = this.sound.add('blast');
@@ -167,20 +169,13 @@ export default class FirstLevel extends Phaser.Scene {
         callbackScope: this,
         loop: false,
       });
-    } else if (this.score >= 150) {
+    } else if (this.score >= 2500) {
       this.nextLevel = true;
-      // this.cameras.main.fadeOut(2000, 0, 0, 0);
-      // this.cameras.main.once(
-      //   Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-      //   (cam, effect) => {
-      //     this.scene.start('boss-level');
-      //   }
-      // );
       this.time.addEvent({
-        delay: 1000,
+        delay: 2000,
         callback: () => {
-          this.music.stop;
-          this.aleluya.play();
+          this.music.stop();
+          this.physics.pause();
           this.scene.start('boss-level', {
             score: this.score,
             shotsFired: this.shotsFired,
@@ -332,8 +327,8 @@ export default class FirstLevel extends Phaser.Scene {
     laser.destroy();
     asteroid.destroy();
     this.enemiesHit++;
-    this.scoreLabel.add(5);
-    this.score += 5;
+    this.scoreLabel.add(50);
+    this.score += 50;
     this.checkScore();
   }
 
@@ -348,8 +343,8 @@ export default class FirstLevel extends Phaser.Scene {
     laser.destroy();
     enemy.destroy();
     this.enemiesHit++;
-    this.scoreLabel.add(10);
-    this.score += 10;
+    this.scoreLabel.add(100);
+    this.score += 100;
     this.checkScore();
   }
 
@@ -386,18 +381,18 @@ export default class FirstLevel extends Phaser.Scene {
   }
 
   checkScore() {
-    if (this.score && !(this.score % 25)) {
+    if (this.score && !(this.score % 250)) {
       this.spawnNumber++;
       this.asteroidSpeed += 50;
       this.maxDelay -= 500;
     }
-    if (this.score === 50) {
+    if (this.score === 500) {
       this.releasePowerup('powerup1');
-    } else if (!(this.score % 100)) {
+    } else if (!(this.score % 1000)) {
       this.releasePowerup('shield');
-    } else if (this.score === 150) {
+    } else if (this.score === 1500) {
       this.releasePowerup('powerup2');
-    } else if (this.score > 50 && !(this.score % 20)) {
+    } else if (this.score > 500 && !(this.score % 200)) {
       this.spawnAngel();
     }
   }

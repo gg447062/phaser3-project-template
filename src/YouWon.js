@@ -10,7 +10,7 @@ export default class YouWon extends Phaser.Scene {
   }
 
   create() {
-    const music = this.sound.add('intro');
+    const music = this.sound.add('ending');
     const musicConfig = {
       mute: false,
       volume: 1,
