@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import ScoreLabel from './ScoreLabel';
+import ScoreLabel from '../entities/ScoreLabel';
 
 export default class FirstLevel extends Phaser.Scene {
   constructor() {

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import HealthLabel from './HealthLabel';
+import HealthLabel from '../entities/HealthLabel';
 
 export default class BossLevel extends Phaser.Scene {
   constructor() {

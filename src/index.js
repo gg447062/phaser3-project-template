@@ -1,25 +1,25 @@
 import Phaser from 'phaser';
-import StartScreen from './StartScreen';
-import FirstLevel from './FirstLevel';
-import GameOver from './GameOver';
-import BossLevel from './BossLevel';
-import YouWon from './YouWon';
+import StartScreen from './scenes/StartScreen';
+import FirstLevel from './scenes/FirstLevel';
+import GameOver from './scenes/GameOver';
+import BossLevel from './scenes/BossLevel';
+import YouWon from './scenes/YouWon';
+import config from './config/config';
 
-const config = {
-  type: Phaser.CANVAS,
-  parent: 'phaser-example',
-  width: 800,
-  height: 600,
-  backgroundColor: 0x000000,
-  scene: [StartScreen, FirstLevel, BossLevel, GameOver, YouWon],
-  canvas: document.getElementById('game'),
-  physics: {
-    default: 'arcade',
-    arcade: {
-      debug: false,
-    },
-  },
-  pixelArt: true,
+class Game extends Phaser.Game {
+  constructor() {
+    super(config);
+
+    this.scene.add('startScreen', StartScreen);
+    this.scene.add('firstLevel', FirstLevel);
+    this.scene.add('gameOver', GameOver);
+    this.scene.add('youWon', YouWon);
+    this.scene.add('bossLevel', BossLevel);
+
+    this.scene.start('startScreen');
+  }
+}
+
+window.onload = function () {
+  window.game = new Game();
 };
-
-const game = new Phaser.Game(config);
