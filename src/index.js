@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import StartScreen from './scenes/StartScreen';
 import FirstLevel from './scenes/FirstLevel';
+import Interlude from './scenes/Interlude';
 import GameOver from './scenes/GameOver';
 import BossLevel from './scenes/BossLevel';
 import YouWon from './scenes/YouWon';
@@ -15,6 +16,7 @@ class Game extends Phaser.Game {
     this.scene.add('gameOver', GameOver);
     this.scene.add('youWon', YouWon);
     this.scene.add('bossLevel', BossLevel);
+    this.scene.add('interlude', Interlude);
 
     this.scene.start('startScreen');
   }

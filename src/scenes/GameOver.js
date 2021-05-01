@@ -39,7 +39,7 @@ export default class GameOver extends Phaser.Scene {
     });
     this.input.keyboard.on('keydown-ENTER', function () {
       music.stop();
-      scene.start('playGame');
+      scene.start('firstLevel');
     });
   }
 }

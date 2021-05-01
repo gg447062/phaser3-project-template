@@ -2,11 +2,54 @@ import Phaser from 'phaser';
 
 export default class StartScreen extends Phaser.Scene {
   constructor() {
-    super('bootGame');
+    super('startScreen');
   }
 
   preload() {
-    this.load.path = '/public/assets/';
+    this.loadAssets();
+  }
+
+  create() {
+    const music = this.sound.add('intro');
+    const musicConfig = {
+      mute: false,
+      volume: 1,
+      rate: 1,
+      detune: 0,
+      seek: 0,
+      loop: true,
+      delay: 0,
+    };
+    music.play(musicConfig);
+    const cameras = this.cameras;
+    cameras.main.fadeIn(2000, 0, 0, 0);
+
+    this.createAnimations();
+
+    this.background = this.add.image(0, 0, 'logo');
+    this.background.setOrigin(0, 0);
+    const skullLogo = this.add.sprite(400, 350, 'logo-skull');
+    skullLogo.setScale(0.75);
+    skullLogo.play('skull_start_anim');
+    this.add.text(120, 480, 'press ENTER to play', {
+      fontSize: '30px',
+      fontFamily: "'Press Start 2P', 'cursive'",
+    });
+    const scene = this.scene;
+    this.input.keyboard.on('keydown-ENTER', function () {
+      cameras.main.fadeOut(2000, 0, 0, 0);
+      cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+        music.stop();
+        scene.start('interlude');
+      });
+    });
+  }
+
+  loadAssets() {
+    this.load.path = './assets/';
+
+    // ---------------------------------- AUDIO ----------------------------------
+
     this.load.audio('dead', 'audio/cuando_mueres.mp3');
     this.load.audio('intro', 'audio/intro.mp3');
     this.load.audio('bossBattle', 'audio/Lucha_con_dios.mp3');
@@ -24,7 +67,10 @@ export default class StartScreen extends Phaser.Scene {
     this.load.audio('dios_se_muere', 'audio/diosito_se_muere.mp3');
     this.load.audio('aleluya', 'audio/aleluya_2.mp3');
     this.load.audio('asteroid', 'audio/asteroide_real.mp3');
-    this.load.image('space', 'images/space.png');
+
+    // ----------------------------------- IMAGES ------------------------------
+
+    this.load.image('space', 'images/space 3.png');
     this.load.image('logo', 'images/logo.png');
     this.load.image('star', 'images/star.png');
     this.load.image('asteroid1', 'images/asteroid-1.png');
@@ -42,11 +88,11 @@ export default class StartScreen extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('explosion2', 'images/explosion2.png', {
+    this.load.spritesheet('asteroid_explosion', 'images/explosion2.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
-    this.load.spritesheet('explosion3', 'images/explosion4.png', {
+    this.load.spritesheet('angel_explosion', 'images/explosion4.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
@@ -95,21 +141,7 @@ export default class StartScreen extends Phaser.Scene {
     });
   }
 
-  create() {
-    const music = this.sound.add('intro');
-    const musicConfig = {
-      mute: false,
-      volume: 1,
-      rate: 1,
-      detune: 0,
-      seek: 0,
-      loop: true,
-      delay: 0,
-    };
-    music.play(musicConfig);
-    const cameras = this.cameras;
-    cameras.main.fadeIn(2000, 0, 0, 0);
-
+  createAnimations() {
     this.anims.create({
       key: 'skull_anim',
       frames: [{ key: 'skull', frame: 2 }],
@@ -160,16 +192,16 @@ export default class StartScreen extends Phaser.Scene {
     });
 
     this.anims.create({
-      key: 'explode2',
-      frames: this.anims.generateFrameNumbers('explosion2'),
+      key: 'asteroid_explode',
+      frames: this.anims.generateFrameNumbers('asteroid_explosion'),
       frameRate: 12,
       repeat: 0,
       hideOnComplete: true,
     });
 
     this.anims.create({
-      key: 'explode3',
-      frames: this.anims.generateFrameNumbers('explosion3'),
+      key: 'angel_explode',
+      frames: this.anims.generateFrameNumbers('angel_explosion'),
       frameRate: 20,
       repeat: 0,
       hideOnComplete: true,
@@ -177,7 +209,7 @@ export default class StartScreen extends Phaser.Scene {
 
     this.anims.create({
       key: 'explode4',
-      frames: this.anims.generateFrameNumbers('explosion3'),
+      frames: this.anims.generateFrameNumbers('angel_explosion'),
       frameRate: 20,
       repeat: 10,
       hideOnComplete: true,
@@ -248,37 +280,6 @@ export default class StartScreen extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers('rayo'),
       frameRate: 12,
       repeat: -1,
-    });
-
-    this.background = this.add.image(0, 0, 'logo');
-    this.background.setOrigin(0, 0);
-    const skullLogo = this.add.sprite(400, 350, 'logo-skull');
-    skullLogo.setScale(0.75);
-    skullLogo.play('skull_start_anim');
-    this.add.text(120, 480, 'press ENTER to play', {
-      fontSize: '30px',
-      fontFamily: "'Press Start 2P', 'cursive'",
-    });
-    // const time = this.time;
-    const scene = this.scene;
-    this.input.keyboard.on('keydown-ENTER', function () {
-      cameras.main.fadeOut(2000, 0, 0, 0);
-      cameras.main.once(
-        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-        (cam, effect) => {
-          music.stop();
-          scene.start('playGame');
-        }
-      );
-      // time.addEvent({
-      //   delay: 1000,
-      //   callback: () => {
-      //     music.stop();
-      //     scene.start('playGame');
-      //   },
-      //   callbackScope: this,
-      //   loop: false,
-      // });
     });
   }
 }
