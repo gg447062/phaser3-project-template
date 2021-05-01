@@ -40,7 +40,7 @@ export default class StartScreen extends Phaser.Scene {
       cameras.main.fadeOut(2000, 0, 0, 0);
       cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
         music.stop();
-        scene.start('interlude');
+        scene.start('firstLevel');
       });
     });
   }
